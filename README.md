@@ -1,57 +1,129 @@
-# EduScan Digital README
 
-Welcome to EduScan! This is a modern, AI-powered attendance and student management system built with Python and PyQt5.
+# 🎓 EduScan — Smart Attendance System
 
-## 🚀 Features
-- Face recognition-based attendance
-- Secure unit selection and logging
-- Real-time camera capture (Windows compatible)
-- Modern PyQt5 dashboard UI
-- Attendance export to Excel
-- Voice feedback for attendance confirmation
-- Modular codebase for easy extension
-
-## 🖥️ Quick Start
-1. **Install dependencies**
-   ```bash
-   pip install -r requirements.txt
-   ```
-2. **Run the main application**
-   ```bash
-   python main.py
-   ```
-3. **Mark attendance**
-   - Use the dashboard sidebar to start attendance capture.
-   - Follow on-screen instructions for unit selection and face scan.
-
-## 📸 Camera Troubleshooting
-- If you see camera errors, ensure no other app is using the webcam.
-- Windows users: Camera access uses DirectShow for best compatibility.
-- Check privacy settings: Settings > Privacy > Camera > Allow apps to access your camera.
-
-## 🗂️ Project Structure
-- `main.py` — App entry point
-- `gui/` — Dashboard and login UI
-- `run_attendance.py` — Attendance capture logic
-- `face_engine/` — Face recognition engine
-- `database/` — Student and unit database
-- `assets/` — Images and logos
-- `themes/` — UI themes
-- `voice_engine/` — Voice feedback
-
-## 📝 Attendance Logs & Export
-- Attendance is logged in `attendance_logs.json`.
-- Export attendance to Excel from the dashboard.
-
-## 🤖 AI & Voice
-- Uses `face_recognition` for face matching
-- Uses `pyttsx3` for voice feedback
-
-## 💡 Contributing
-Pull requests are welcome! For major changes, please open an issue first.
-
-## 📄 License
-This project is licensed under the MIT License.
+> A **desktop-based Smart Attendance System** with **AI-powered facial and voice recognition**, built using **Python + PyQt5**.  
+> EduScan modernizes classroom attendance with real-time recognition, hybrid fallback, exports, and a sleek dashboard UI.
 
 ---
-For more help, contact the maintainer or open an issue on GitHub.
+
+## 📌 Features
+- 🎭 **AI Recognition** → Face recognition with fallback to voice confirmation.  
+- 🖥️ **Modern Dashboard** → Responsive PyQt5 GUI with school branding.  
+- 📂 **Unit-Based Attendance** → Manage units, assign students, track attendance.  
+- 🔔 **Audio Feedback** → Real-time voice confirmations via TTS engine.  
+- 📊 **Data Export** → Export records to CSV / Excel.  
+- ⚡ **Hybrid Mode** → Face recognition → fallback to voice → log attendance once/day.  
+- 🔒 **Admin Tools** → Reset records, manage units & students.  
+
+---
+
+## � Quick Start
+
+### 1. Clone the repo
+```bash
+git clone https://github.com/<your-org>/eduscan.git
+cd eduscan
+
+2. Create environment & install dependencies
+python -m venv .venv
+# Activate:
+# macOS/Linux → source .venv/bin/activate
+# Windows → .venv\Scripts\activate
+pip install -r requirements.txt
+
+3. Run EduScan
+python main.py
+```
+
+⚙️ Requirements
+
+Python 3.8+
+
+Webcam (internal/external)
+
+OS: Windows / Linux
+
+Dependencies: pyqt5, opencv-python, face_recognition, numpy, pandas, pyttsx3, openpyxl
+
+Install all with:
+
+```bash
+pip install -r requirements.txt
+```
+
+🖼️ Screenshots
+<details> <summary>Click to expand</summary>
+
+Dashboard View
+
+
+Attendance Capture
+
+
+</details>
+🛠️ Project Structure
+eduscan/
+│── assets/            # logos, screenshots, icons
+│── core/              # engines: face, voice, db
+│── ui/                # PyQt5 views & widgets
+│── exports/           # exported reports
+│── logs/              # JSON attendance logs
+│── main.py            # entry point
+│── requirements.txt   # dependencies
+│── README.md          # this file
+
+🔄 How It Works
+```mermaid
+flowchart TD
+   UI[Dashboard (PyQt5)] -->|Start| Camera[Camera Capture]
+   Camera --> FaceRec[Face Recognition Engine]
+   FaceRec --> Decision{Recognized?}
+   Decision -->|Yes| DB[(Attendance DB)]
+   Decision -->|No| Voice[Voice Fallback (TTS)]
+   Voice --> DB
+   DB --> Export[CSV/Excel Reports]
+```
+
+🧪 Testing
+
+Run unit tests with:
+
+```bash
+pytest -q
+```
+
+📌 Roadmap
+
+ Face recognition attendance
+
+ Voice fallback system
+
+ Attendance export (CSV, Excel)
+
+ Multi-admin roles & login system
+
+ Real-time analytics (charts, graphs)
+
+ Cloud sync option
+
+🤝 Contributing
+
+Contributions welcome!
+
+Fork the repo
+
+Create a feature branch
+
+Commit & push
+
+Open a PR 🎉
+
+� License
+
+MIT License © 2025 — EduScan Team
+
+
+---
+
+👉 This is now **one clean, modern README.md file**.
+Do you also want me to embed the **dependencies list (`requirements.txt`) inside this README** (so yo
