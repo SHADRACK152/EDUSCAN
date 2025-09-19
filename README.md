@@ -68,17 +68,6 @@ eduscan/
 └── README.md          # this file
 ```
 
-## 🔄 How It Works
-```mermaid
-flowchart TD
-  UI[Dashboard (PyQt5)] --> Camera[Camera Capture]
-  Camera --> FaceRec[Face Recognition Engine]
-  FaceRec --> Decision{Recognized?}
-  Decision -- Yes --> DB[(Attendance DB)]
-  Decision -- No --> Voice[Voice Fallback (TTS)]
-  Voice --> DB
-  DB --> Export[CSV/Excel Reports]
-```
 
 ## 🧪 Testing
 Run unit tests with:
