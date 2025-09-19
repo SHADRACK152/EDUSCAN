@@ -71,7 +71,7 @@ eduscan/
 ## 🔄 How It Works
 ```mermaid
 flowchart TD
-  UI[Dashboard (PyQt5)] -->|Start| Camera[Camera Capture]
+  UI[Dashboard (PyQt5)] --> Camera[Camera Capture]
   Camera --> FaceRec[Face Recognition Engine]
   FaceRec --> Decision{Recognized?}
   Decision -- Yes --> DB[(Attendance DB)]
