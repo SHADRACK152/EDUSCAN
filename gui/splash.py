@@ -1,8 +1,14 @@
 from PyQt5.QtWidgets import QSplashScreen, QLabel
 from PyQt5.QtGui import QMovie, QPixmap, QFont
 from PyQt5.QtCore import Qt, QTimer
-from playsound import playsound
+try:
+    from playsound import playsound
+except Exception:
+    # playsound is optional; provide a no-op fallback so the app can run without sound
+    def playsound(path):
+        return None
 import threading
+
 
 class SplashScreen(QSplashScreen):
     def __init__(self):
