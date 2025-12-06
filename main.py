@@ -1,9 +1,13 @@
 from PyQt5.QtWidgets import QApplication
 from gui.splash import SplashScreen
 from gui.login import LoginWindow
+from theme_manager import apply_theme
 import sys
 
 app = QApplication(sys.argv)
+
+# Apply light theme on startup
+apply_theme("light")
 
 
 def show_login():

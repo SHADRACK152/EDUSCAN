@@ -3,13 +3,18 @@ import cv2
 import os
 import pickle
 from database.student_db import load_all_encodings, log_attendance
-from resemblyzer import VoiceEncoder, preprocess_wav
 import numpy as np
+
+# Try to import voice encoder, but make it optional
+try:
+    from resemblyzer import VoiceEncoder, preprocess_wav
+    encoder = VoiceEncoder()
+except ImportError:
+    print("[WARNING] resemblyzer not installed. Voice recognition disabled.")
+    encoder = None
 
 DATASET_DIR = "students"
 ENCODINGS_FILE = "face_engine/encodings.pkl"
-
-encoder = VoiceEncoder()
 
 
 def encode_faces():

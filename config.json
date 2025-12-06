@@ -1,0 +1,160 @@
+{
+    "app": {
+        "name": "EDUSCAN",
+        "version": "1.0.0",
+        "author": "EDUSCAN Team",
+        "description": "Smart Attendance System with AI-powered facial and voice recognition",
+        "url": "https://github.com/SHADRACK152/EDUSCAN"
+    },
+    "build": {
+        "output_dir": "dist",
+        "app_name": "EDUSCAN",
+        "icon": "assets/icon.ico",
+        "author": "EDUSCAN Team",
+        "license": "MIT"
+    },
+    "system_requirements": {
+        "os": "Windows 10+",
+        "ram_min_gb": 2,
+        "disk_space_mb": 1000,
+        "python_version": "3.8+",
+        "hardware": ["Webcam (internal or external)"]
+    },
+    "installer": {
+        "name": "EDUSCAN-Installer.exe",
+        "size_mb": "450-550",
+        "install_dir": "C:\\Program Files\\EDUSCAN",
+        "create_shortcuts": true,
+        "add_to_start_menu": true,
+        "create_desktop_shortcut": true,
+        "requires_admin": false
+    },
+    "portable": {
+        "name": "EDUSCAN-Portable.zip",
+        "size_mb": "450-550",
+        "requires_installation": false,
+        "requires_admin": false,
+        "note": "Extract and run EDUSCAN.exe"
+    },
+    "dependencies": {
+        "runtime": [
+            "PyQt5",
+            "opencv-python",
+            "face-recognition",
+            "dlib",
+            "pyttsx3",
+            "sounddevice",
+            "numpy",
+            "pandas",
+            "openpyxl",
+            "Pillow"
+        ],
+        "build_only": [
+            "PyInstaller",
+            "setuptools",
+            "wheel"
+        ]
+    },
+    "features": [
+        "Facial recognition attendance",
+        "Voice confirmation fallback",
+        "Real-time face detection",
+        "Professional dashboard",
+        "Dark/Light theme support",
+        "Excel/CSV export",
+        "Unit-based management",
+        "Student database",
+        "Attendance logging",
+        "Admin tools"
+    ],
+    "deployment_options": {
+        "option_1": {
+            "name": "Portable ZIP",
+            "file": "EDUSCAN-Portable.zip",
+            "size": "450-550 MB",
+            "installation": "Extract and run",
+            "target_users": "End-users, USB distribution",
+            "advantages": [
+                "No installation required",
+                "Portable across devices",
+                "No admin rights needed",
+                "Fast deployment"
+            ]
+        },
+        "option_2": {
+            "name": "Windows Installer",
+            "file": "EDUSCAN-Installer.exe",
+            "size": "450-550 MB",
+            "installation": "Run installer, follow wizard",
+            "target_users": "Professional installations, schools",
+            "advantages": [
+                "Professional installer UI",
+                "Automatic uninstaller",
+                "Start Menu integration",
+                "Desktop shortcuts",
+                "Windows registry support"
+            ],
+            "prerequisites": "NSIS installed"
+        },
+        "option_3": {
+            "name": "Direct Folder Copy",
+            "file": "dist/EDUSCAN/",
+            "size": "450-550 MB",
+            "installation": "Copy folder, run EDUSCAN.exe",
+            "target_users": "Network shares, CI/CD integration",
+            "advantages": [
+                "No compression needed",
+                "Fastest deployment",
+                "Works on network drives",
+                "Easy to version control"
+            ]
+        }
+    },
+    "security": {
+        "code_signing": false,
+        "antivirus_notes": "New executables may trigger warnings - add to whitelist if needed",
+        "recommendations": [
+            "Sign executable with code certificate for production",
+            "Use HTTPS for any online updates",
+            "Verify SQLite database file permissions",
+            "Use environment variables for sensitive config"
+        ]
+    },
+    "distribution_checklist": [
+        "✅ All dependencies in requirements.txt",
+        "✅ Database initialization working",
+        "✅ Theme files included",
+        "✅ Assets folder complete",
+        "✅ Application tested on Windows",
+        "✅ Icon file present (assets/icon.ico)",
+        "✅ Create version-numbered builds",
+        "✅ Generate release notes",
+        "✅ Test installer on clean system",
+        "✅ Document system requirements",
+        "✅ Create user installation guide"
+    ],
+    "build_commands": {
+        "quick_build": "python quick_build.py",
+        "batch_build": "build.bat",
+        "powershell_build": ".\\build.ps1",
+        "advanced_build": "python build_installer.py",
+        "clean_only": ".\\build.ps1 -CleanOnly"
+    },
+    "version_history": {
+        "1.0.0": {
+            "date": "2025-12-06",
+            "features": [
+                "Initial release",
+                "Facial recognition",
+                "Voice confirmation",
+                "Professional dashboard",
+                "Dark/Light theme support"
+            ],
+            "improvements": [
+                "Modern PyQt5 UI",
+                "Optimized face detection",
+                "Theme system implementation"
+            ]
+        }
+    }
+}

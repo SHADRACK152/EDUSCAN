@@ -59,11 +59,13 @@ def save_to_json_log(student_id, name, unit_id):
 
 def start_attendance():
     # Ensure QApplication is constructed before any QWidget
-    from PyQt5.QtWidgets import QApplication, QDialog, QVBoxLayout, QLabel, QComboBox, QLineEdit, QPushButton, QMessageBox
+    from PyQt5.QtWidgets import QApplication, QDialog, QVBoxLayout, QHBoxLayout, QLabel, QComboBox, QPushButton, QMainWindow, QWidget
+    from PyQt5.QtGui import QImage, QPixmap
+    from PyQt5.QtCore import Qt, QTimer
     import sys, json, sqlite3
     QApplication.instance() or QApplication(sys.argv)  # noqa: F841, intentional side effect
 
-    # PyQt5 dialog for unit selection and password entry
+    # PyQt5 dialog for unit selection
     class UnitPasswordDialog(QDialog):
         def __init__(self):
             super().__init__()
@@ -79,10 +81,127 @@ def start_attendance():
             for uid, name, code in self.units:
                 self.unit_combo.addItem(f"{name} ({code})", uid)
             layout.addWidget(self.unit_combo)
+            button_layout = QHBoxLayout()
             start_btn = QPushButton("Start")
             start_btn.clicked.connect(self.accept)
-            layout.addWidget(start_btn)
+            button_layout.addWidget(start_btn)
+            layout.addLayout(button_layout)
             self.setLayout(layout)
+
+    # PyQt5 window for attendance with stop button
+    class AttendanceWindow(QMainWindow):
+        def __init__(self, unit_id):
+            super().__init__()
+            self.setWindowTitle("EduScan Attendance - Taking")
+            self.setGeometry(100, 100, 1000, 700)
+            self.unit_id = unit_id
+            self.is_running = True
+            self.logged_students = set()
+
+            # Main widget
+            main_widget = QWidget()
+            self.setCentralWidget(main_widget)
+            layout = QVBoxLayout()
+
+            # Video label
+            from PyQt5.QtWidgets import QLabel as QLabelWidget
+            self.video_label = QLabelWidget()
+            self.video_label.setMinimumHeight(600)
+            layout.addWidget(self.video_label)
+
+            # Button layout
+            button_layout = QHBoxLayout()
+            stop_btn = QPushButton("Stop Attendance")
+            stop_btn.setStyleSheet("background-color: red; color: white; font-size: 14px; padding: 10px;")
+            stop_btn.clicked.connect(self.stop_attendance)
+            button_layout.addStretch()
+            button_layout.addWidget(stop_btn)
+            layout.addLayout(button_layout)
+
+            main_widget.setLayout(layout)
+
+            # Camera setup
+            self.video = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+            if not self.video.isOpened():
+                print("❌ Cannot access camera.")
+                self.is_running = False
+                return
+
+            self.known_ids, self.known_names, self.known_encodings = load_all_encodings()
+
+            # Timer for camera updates
+            self.timer = QTimer()
+            self.timer.timeout.connect(self.update_frame)
+            self.timer.start(30)
+
+        def update_frame(self):
+            if not self.is_running:
+                return
+
+            ret, frame = self.video.read()
+            if not ret:
+                return
+
+            rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            face_locations = face_recognition.face_locations(rgb_frame)
+            face_encodings = face_recognition.face_encodings(rgb_frame, face_locations)
+
+            for face_encoding, face_location in zip(face_encodings, face_locations):
+                matches = face_recognition.compare_faces(self.known_encodings, face_encoding, tolerance=0.5)
+                face_distances = face_recognition.face_distance(self.known_encodings, face_encoding)
+
+                if len(face_distances) == 0:
+                    continue
+
+                best_match_index = np.argmin(face_distances)
+
+                if matches[best_match_index]:
+                    sid = self.known_ids[best_match_index]
+                    name = self.known_names[best_match_index]
+
+                    if already_logged_today(sid, self.unit_id) or (sid, self.unit_id) in self.logged_students:
+                        continue
+
+                    # Draw rectangle and name
+                    top, right, bottom, left = face_location
+                    cv2.rectangle(frame, (left, top), (right, bottom), (0, 255, 0), 2)
+                    cv2.putText(frame, name, (left, top - 10),
+                                cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 0), 2)
+
+                    # Save attendance
+                    log_attendance(sid, name)
+                    save_to_json_log(sid, name, self.unit_id)
+                    self.logged_students.add((sid, self.unit_id))
+
+                    # Show confirmation
+                    cv2.putText(frame, "✔ Attendance Marked – Next Student", (100, 50),
+                                cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 200, 0), 3)
+                    speak(f"{name}, attendance marked. Next student.")
+
+            # Add instructions
+            cv2.putText(frame, "Press STOP button to end attendance", (10, frame.shape[0] - 20),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+
+            # Convert to Qt format
+            h, w, ch = frame.shape
+            bytes_per_line = ch * w
+            qt_image = QImage(frame.data, w, h, bytes_per_line, QImage.Format_RGB888).rgbSwapped()
+            pixmap = QPixmap.fromImage(qt_image)
+            self.video_label.setPixmap(pixmap.scaledToWidth(self.video_label.width()))
+
+        def stop_attendance(self):
+            self.is_running = False
+            self.timer.stop()
+            self.video.release()
+            print("[INFO] Attendance session ended.")
+            self.close()
+
+        def closeEvent(self, event):
+            self.is_running = False
+            self.timer.stop()
+            if self.video.isOpened():
+                self.video.release()
+            event.accept()
 
     # ...existing code...
     logged_students = set()
@@ -97,62 +216,8 @@ def start_attendance():
         return
     unit_id = dialog.unit_combo.currentData()
 
-    known_ids, known_names, known_encodings = load_all_encodings()
-    video = cv2.VideoCapture(0, cv2.CAP_DSHOW)
-    if not video.isOpened():
-        print("❌ Cannot access camera.")
-        return
-
-    while True:
-        ret, frame = video.read()
-        if not ret:
-            continue
-
-        rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        face_locations = face_recognition.face_locations(rgb_frame)
-        face_encodings = face_recognition.face_encodings(rgb_frame, face_locations)
-
-        for face_encoding, face_location in zip(face_encodings, face_locations):
-            matches = face_recognition.compare_faces(known_encodings, face_encoding, tolerance=0.5)
-            face_distances = face_recognition.face_distance(known_encodings, face_encoding)
-
-            if len(face_distances) == 0:
-                continue
-
-            best_match_index = np.argmin(face_distances)
-
-            if matches[best_match_index]:
-                sid = known_ids[best_match_index]
-                name = known_names[best_match_index]
-
-                if already_logged_today(sid, unit_id) or (sid, unit_id) in logged_students:
-                    continue
-
-                # Draw rectangle and name
-                top, right, bottom, left = face_location
-                cv2.rectangle(frame, (left, top), (right, bottom), (0, 255, 0), 2)
-                cv2.putText(frame, name, (left, top - 10),
-                            cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 0), 2)
-
-                # Save attendance
-                log_attendance(sid, name)
-                save_to_json_log(sid, name, unit_id)
-                logged_students.add((sid, unit_id))
-
-                # Show confirmation
-                cv2.putText(frame, "✔ Attendance Marked – Next Student", (100, 50),
-                            cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 200, 0), 3)
-                speak(f"{name}, attendance marked. Next student.")
-                cv2.imshow("EduScan Attendance", frame)
-                cv2.waitKey(2500)
-                break
-
-        cv2.imshow("EduScan Attendance", frame)
-
-        if cv2.waitKey(1) & 0xFF == ord("q"):
-            break
-
-    video.release()
-    cv2.destroyAllWindows()
+    # Show attendance window with camera
+    attendance_window = AttendanceWindow(unit_id)
+    attendance_window.show()
 
 
