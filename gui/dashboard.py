@@ -64,7 +64,6 @@ class DashboardWindow(QWidget):
         self.sidebar.addWidget(logo_container)
 
         # Professional buttons
-        from run_attendance import start_attendance
         buttons = [
             ("🏠", "Dashboard", self.show_home),
             ("➕", "Register Student", self.open_register_student),
@@ -256,5 +255,7 @@ class DashboardWindow(QWidget):
         self.unit_window.show()
 
     def start_attendance(self):
-        from run_attendance import start_attendance
-        start_attendance()
+        from run_attendance import AttendanceWindow
+        # Store as instance variable to prevent garbage collection
+        self.attendance_window = AttendanceWindow()
+        self.attendance_window.show()

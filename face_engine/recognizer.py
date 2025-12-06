@@ -4,13 +4,17 @@ import os
 import pickle
 from database.student_db import load_all_encodings, log_attendance
 import numpy as np
+import warnings
+
+# Suppress deprecation warnings
+warnings.filterwarnings('ignore', category=DeprecationWarning)
 
 # Try to import voice encoder, but make it optional
 try:
     from resemblyzer import VoiceEncoder, preprocess_wav
     encoder = VoiceEncoder()
 except ImportError:
-    print("[WARNING] resemblyzer not installed. Voice recognition disabled.")
+    # Voice recognition is optional - face recognition is the primary method
     encoder = None
 
 DATASET_DIR = "students"

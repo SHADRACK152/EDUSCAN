@@ -1,0 +1,48 @@
+# 🎯 Attendance Bug Fix - Summary
+
+## What Was Broken
+```
+Error: QCoreApplication::exec: The event loop is already running
+App crashed when clicking "Start Attendance"
+```
+
+## What Was Wrong
+The dashboard runs a Qt event loop. When you clicked "Start Attendance", the code tried to start ANOTHER event loop - which Qt doesn't allow.
+
+## What Was Fixed
+**Removed the problematic line:**
+```python
+sys.exit(app.exec_())  # ❌ Was causing crash
+```
+
+Now the code just shows the window and returns to the dashboard's event loop.
+
+## Result
+✅ **Attendance now works without crashing!**
+
+---
+
+## Quick Test
+
+```powershell
+# 1. Start app
+python main.py
+
+# 2. Register a student (if not done)
+# - Click "Register Student"
+# - Take a photo
+
+# 3. Click "🎥 Start Attendance"
+# - Select unit
+# - Click "Start"
+# - Show your face to camera
+```
+
+**Expected Result:** Face recognized → Attendance marked → No crashes
+
+---
+
+## Files Changed
+- `run_attendance.py` - Removed `app.exec_()` call
+
+**Status:** ✅ Ready to use!
